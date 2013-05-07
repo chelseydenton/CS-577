@@ -1,7 +1,6 @@
 //credit to rosettacode.org for code sample
 	
 import java.awt.Dimension;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.util.Hashtable;
 import java.util.Map.Entry;
@@ -11,7 +10,9 @@ import java.util.Scanner;
 import javax.swing.JPanel;
 
 import org.jfree.chart.*;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.*;
 import org.jfree.ui.*;
 
@@ -59,32 +60,32 @@ public class Huffman {
 	    	count++;
 	    }
 	    String firstName = fileName;
-	    System.out.println("First Name : "+fileName);
+	    //System.out.println("First Name : "+fileName);
 	    
 	    //loop until the end point or no more file names
 	    while (count < end && fileName != null) {
 	    	//use the file given to update global hash
 	    	updateHash(fileName);
-	    	System.out.println("Added file: " + fileName);
+	    	//System.out.println("Added file: " + fileName);
 	    	fileName = "speechdata\\" + sc.next();
 	    	count++;
 	    }
 	    String lastName = fileName;
-	    System.out.println("Last Name : "+fileName);
+	    //System.out.println("Last Name : "+fileName);
 	    sc.close();
 	    
 	    
 	    //smooth out the global dictionary
-	    System.out.println("\n\nSmoothing out the dictionary...");
+	    System.out.println("Smoothing out the dictionary...");
 		smooth();
 		
 		//build tree
-		System.out.println("\n\nBuilding Huffman Code Tree...");
+		System.out.println("\nBuilding Huffman Code Tree...");
 		HuffmanTree tree = buildTree();
 		//printCodes(tree, new StringBuffer());
 		
 		//build a hash to quickly look up a given words code
-		System.out.println("\n\nBuilding encoded dictionary...");
+		System.out.println("\nBuilding encoded dictionary...");
 		encodedHash = encodeWords(tree, new StringBuffer());
 		
 		
@@ -92,9 +93,15 @@ public class Huffman {
 		we compare the compression of Huffman code to that of block compression to get a compression ratio
 		we use these ratios and dates to make a graph*/
 		int year = 0;
-		int huff = 0;
-		int bloc = 0;
+		float huff = 0;
+		float bloc = 0;
 		float ratio = 0;
+		
+		float min = 99999999;
+		float max = 0;
+		float avg = 0;
+		int avgCount = 0;
+		
 		sc = new Scanner(file);
 		
 		System.out.println("\nMaking graph...");
@@ -106,6 +113,14 @@ public class Huffman {
 			//System.out.println("\nBloc count: " + bloc + " Huffman count: " + huff);
 			ratio = (float) huff/bloc;
 			
+			//update min max and average
+			if ( ratio < min )
+				min = ratio;
+			if ( ratio > max )
+				max = ratio;
+			avg += ratio;
+			avgCount++;
+			
 			//remove all but the first 4 chars of the file name (the year)
 			fileName = fileName.substring(0, 4);
 			year = Integer.parseInt(fileName);
@@ -115,6 +130,8 @@ public class Huffman {
 			//System.out.println("Added data series: Year:" + year + " Ratio:" + ratio);
 		}
 		sc.close();
+		
+		System.out.println("\nMinimum Ratio: " + min + "\nMaximum Ratio: " + max + "\nAverage Ratio: " + avg/count);
 
 		//create scatter plot
 		String chartName = new String("Huffman Ratio using speeches " + firstName + " to " + lastName);
@@ -127,11 +144,14 @@ public class Huffman {
 		false, 						// include legend
 		true, 						// tooltips
 		false 						// urls
-		); 
+		);
 		 
 		JPanel chartPanel = new ChartPanel(chart);
-		chartPanel.setPreferredSize(new Dimension(500, 270));
-		demo.setContentPane(chartPanel);  
+		chartPanel.setPreferredSize(new Dimension(1000, 500));
+		XYPlot plot = (XYPlot) chart.getPlot();
+		ValueAxis yAxis = plot.getRangeAxis();
+		yAxis.setRange(0.5, 2.0);
+		demo.setContentPane(chartPanel);
 		demo.pack();
 		RefineryUtilities.centerFrameOnScreen(demo);
 		demo.setVisible(true);
@@ -169,7 +189,7 @@ public class Huffman {
 		//try to open and setup to read file  
 	    File files = new File(fileList);
 	    Scanner sc = new Scanner(files);
-	    String fileName = "speechdata\\" + sc.next();
+	    String fileName = "speechdata\\";
 	    String word = "";
 	    
 	    //read all of the files
@@ -184,8 +204,8 @@ public class Huffman {
 		    while( sc1.hasNext() ) {
 		    	word = sc1.next();
 				//convert to lower case and remove punctuation
-				word = word.toLowerCase();
-				word = word.replaceAll("([a-z]+)[?:!.,;]*", "$1");
+				//word = word.toLowerCase();
+				//word = word.replaceAll("([a-z]+)[?:!.,;]*", "$1");
 				
 				//insert words into dictionary
 				if ( dictionary.get(word) == null ) {
@@ -230,7 +250,7 @@ public class Huffman {
 	
 	        //create a new word with the same name but different value (instead of frequency we use its code)
 	        encodedHash.put(leaf.word, prefix.toString());
-	        System.out.println(prefix.toString()+" "+leaf.word);
+	        //System.out.println(prefix.toString()+" "+leaf.word);
 	
 	    } else if (tree instanceof HuffmanNode) {
 	        HuffmanNode node = (HuffmanNode)tree;
@@ -268,6 +288,7 @@ public class Huffman {
 		
 	    //System.out.println("\n\nWord Count: " + count + "Unique Count: " + uCount);
 	    count = (int)((float)count * (Math.log(uCount)/Math.log(2)));
+	    sc.close();
 	    return count;
 	}
 	
@@ -295,7 +316,7 @@ public class Huffman {
 	        HuffmanLeaf leaf = (HuffmanLeaf)tree;
 	
 	        // print out character, frequency, and code for this leaf (which is just the prefix)
-	        System.out.println(leaf.word + "\t\t" + leaf.frequency + "\t\t" + prefix);
+	        //System.out.println(leaf.word + "\t\t" + leaf.frequency + "\t\t" + prefix);
 
 	    } else if (tree instanceof HuffmanNode) {
 	        HuffmanNode node = (HuffmanNode)tree;
