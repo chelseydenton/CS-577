@@ -25,12 +25,14 @@ public class Huffman {
 	int end;
 	Hashtable<String, Integer> dictionary;
 	Hashtable<String, String>  encodedHash;
+	PriorityQueue<Word> pqWord;
 	
 	
 	//Constructor
 	Huffman(String fileList, int start, int end) {
     	dictionary = new Hashtable<String, Integer>();
     	encodedHash = new Hashtable<String, String>();
+    	pqWord = new PriorityQueue<Word>();
     	
     	this.fileList = fileList;
     	this.start = start;
@@ -101,6 +103,7 @@ public class Huffman {
 		float max = 0;
 		float avg = 0;
 		int avgCount = 0;
+		Word word = new Word("", 0);
 		
 		sc = new Scanner(file);
 		
@@ -128,8 +131,15 @@ public class Huffman {
 			//add data to graph
 			data.getSeries(0).add(year, ratio);
 			//System.out.println("Added data series: Year:" + year + " Ratio:" + ratio);
+			
+			word.setName(fileName);
+			word.setValue( (int) (1000 * ratio));
+			pqWord.add(word);
+			//System.out.println(pqWord.peek());
 		}
 		sc.close();
+		
+		printBestWorst();
 		
 		System.out.println("\nMinimum Ratio: " + min + "\nMaximum Ratio: " + max + "\nAverage Ratio: " + avg/avgCount);
 
@@ -300,10 +310,28 @@ public class Huffman {
 		String word = "";
 		int count = 0;
 		
+//		int shortest = 99999;
+//		String shortestS = "";
+//		int longest = 0;
+//		String longestS = "";
+		
 		while (sc.hasNext()) {
 			word = sc.next();
 			count += encodedHash.get(word).length();
+			
+//			if ( longest < encodedHash.get(word).length()) {
+//				longest = encodedHash.get(word).length();
+//				longestS = word;
+//			}
+//			
+//			if ( shortest > encodedHash.get(word).length()) {
+//				shortest = encodedHash.get(word).length();
+//				shortestS = word;
+//			}
 		}
+		//System.out.println("Shortest: " + shortestS + " " + shortest);
+		//System.out.println("Longest: " + longestS + " " + longest);
+		
 		sc.close();
 		
 		return count;
@@ -331,6 +359,32 @@ public class Huffman {
 	        printCodes(node.right, prefix);
 	        prefix.deleteCharAt(prefix.length()-1);
 	    }
+	}
+	
+	public void printBestWorst() {
+		Word test = new Word("", 0);
+		while ( !pqWord.isEmpty() ) { 
+			test = pqWord.poll();
+			System.out.println(") Filename: " + test.getName() + " Ratio: " + (float)test.getValue()/1000.0);
+			pqWord.remove(test);
+		}
+//		}
+//		System.out.println("Top 10 best ratios:");
+//		Word test = new Word("", 0);
+//		for ( int i = 0; i < 10; i++ ) {
+//			test = pqWord.poll();
+//			System.out.println(i + ") Filename: " + test.getName() + " Ratio: " + (float)test.getValue()/1000.0);
+//		}
+//		
+//		while (pqWord.size() > 10 ) {
+//			test = pqWord.poll();
+//		}
+//		
+//		System.out.println("\nBottom 10 ratios: ");
+//		for ( int i = 0; i < 10; i++ ) {
+//			test = pqWord.poll();
+//			System.out.println(i + ") Filename: " + test.getName() + " Ratio: " + (float)test.getValue()/1000.0);
+//		}
 	}
 	
     /*public void printEncoded(String fileName, Hashtable<String, String> dictionary)throws IOException {
