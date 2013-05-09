@@ -139,7 +139,7 @@ public class Huffman {
 		}
 		sc.close();
 		
-		printBestWorst();
+		//printBestWorst();
 		
 		System.out.println("\nMinimum Ratio: " + min + "\nMaximum Ratio: " + max + "\nAverage Ratio: " + avg/avgCount);
 
