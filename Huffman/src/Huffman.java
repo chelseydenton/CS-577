@@ -104,7 +104,7 @@ public class Huffman {
 		
 		sc = new Scanner(file);
 		
-		System.out.println("\nMaking graph...");
+		System.out.println("\nMaking graph using speeches " + firstName + " to " + lastName);
 		while (sc.hasNext()) {
 			fileName = sc.next();
 			//compute number of bits in huffman code
@@ -131,7 +131,7 @@ public class Huffman {
 		}
 		sc.close();
 		
-		System.out.println("\nMinimum Ratio: " + min + "\nMaximum Ratio: " + max + "\nAverage Ratio: " + avg/count);
+		System.out.println("\nMinimum Ratio: " + min + "\nMaximum Ratio: " + max + "\nAverage Ratio: " + avg/avgCount);
 
 		//create scatter plot
 		String chartName = new String("Huffman Ratio using speeches " + firstName + " to " + lastName);
